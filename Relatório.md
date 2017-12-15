@@ -19,28 +19,26 @@ Each program should:
   - print the name of the last thread (1 to 503) to take the token  
 
 ### Recursos utilizados
-  - **sync.Mutex** mecanismo bloqueante de exclusão múltua [\[1\]][1].  
-  - **go** é uma palavra reservada que dispara uma thread concorrente independente (_goroutine_) [\[2\]][2].  
-  - **chan** é um canal utilizado para comunicação concorrente entre threads enviando e recebendo dados [\[3\]][3].  
-  - **runtime.GoSched** libera a CPU permitindo que outra thread possa executar [\[4\]][4].
-  - **runtime.GOMAXPROCS** seta o número máximo de CPUs a ser útilizado simultaneamente [\[5\]][5].  
+  - **sync.Mutex**: mecanismo bloqueante de exclusão múltua [\[1\]][1].
+  - **go**: é uma palavra reservada que dispara uma thread concorrente independente (_goroutine_) [\[2\]][2].
+  - **chan**: é um canal utilizado para comunicação concorrente entre threads enviando e recebendo dados [\[3\]][3].
+  - **runtime.GoSched**: libera a CPU permitindo que outra thread possa executar [\[4\]][4].
+  - **runtime.GOMAXPROCS**: seta o número máximo de CPUs a ser útilizado simultaneamente [\[5\]][5].
 
 ### Solução
-No programa uma _struct_ é utilizado para representar uma thread no programa.
+No programa uma _struct_ é utilizado para representar uma thread do problema.
 Cada thread é associado a um id e um mutex que é adquirido na inicialização da thread, bem como uma referência para a próxima thread no ciclo. Após a inicialização uma nova _goroutine_ é disparada com a tarefa de execução da thread.  
 
-Após a inicialização das threads a rotina principal envia o token para a primeira thread para que o ciclo começe. O número de operações a ser executado é utilizado como token que deve ser passado de thread em thread. A rotina principal é então bloqueada enquanto aguarda até que algum valor seja posto no canal (**chan**) de comunicação indicando que as rotinas terminaram a passagem de token. Após receber o ID da última thread pelo canal a thread principal o imprime e termina a execução do programa.
+Quando iniciadas as _goroutines_, a rotina principal envia o token para a primeira thread para que o ciclo começe. O número de operações a ser executado é utilizado como token que deve ser passado de thread em thread. A rotina principal é então bloqueada enquanto aguarda até que algum valor seja posto no canal (**chan**) de comunicação indicando que a tarefa terminou. Após receber o ID da última thread pelo canal a thread principal o imprime e termina a execução do programa.
 
-Quando a thread 1 recebe o token inicialmente seu lock é liberado. Esta então readiquire o seu lock, decrementa o token e o passa para a thread seguinte liberando o lock da mesma. Logo as threads que recebem o token tem sempre seu lock liberado para poder processa-lo, se o token contem 0 a thread envia seu ID para o canal de comunicação, indicado o fim das tarefas; Caso contrário o processo de passagem de token é repetido.
+Quando a thread 1 recebe o token inicialmente seu lock é liberado. Ela então readiquire o seu lock, decrementa o token e o passa para a thread seguinte liberando o lock da mesma. Logo as threads que recebem o token tem sempre seu lock liberado para poder processa-lo, se o token contem 0 a thread envia seu ID para o canal de comunicação, indicado o fim das tarefas; Caso contrário o processo de passagem de token é repetido.
 
 O problema pede que o escalonador da linguagem seja totalmente preemptivo, entretando em alguns pontos, como laços de repetição, outras _goroutines_ não podem obetar a CPU por preempção [\[6\]][6].
 Logo no programa faz-se uso da função **runtime.GoSched** para permitir que outras rotinas possam ser executadas antes do reinício do laço de repetiação onde o lock da thread é adquirido.
 
 ### Resultados e Desempenho
 
-Os experimentos foram executados numa máquina com processador Intel Core i7, frequência de 3.40GHz, 4 cores físicos e 4 lógicos, 8GiB de memória RAM.
-O sistema operacional foi um Ubuntu 16.04, com a versão 1.6 do Go Language.
-Para as medições de tempo o comando **time** do GNU/Linux foi utilizado.
+Os experimentos foram executados numa máquina com processador Intel Core i7, frequência de 3.40GHz, 4 cores físicos e 4 lógicos, 8GiB de memória RAM. O sistema operacional foi um Ubuntu 16.04, com a versão 1.6 do Go Language. Para as medições de tempo o comando **time** do GNU/Linux foi utilizado.
 
 A a tabela abaixo apresenta a média de 30 execuções parada cada um dos números de operações.
 
