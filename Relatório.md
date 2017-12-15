@@ -20,16 +20,10 @@ Each program should:
 
 ### Recursos utilizados
   - **sync.Mutex** mecanismo bloqueante de exclusão múltua [\[1\]][1].  
-  - **go** é uma palavra reservada que dispara uma thread concorrente independente (_goroutine_)[\[2\]][2].  
+  - **go** é uma palavra reservada que dispara uma thread concorrente independente (_goroutine_) [\[2\]][2].  
   - **chan** é um canal utilizado para comunicação concorrente entre threads enviando e recebendo dados [\[3\]][3].  
   - **runtime.GoSched** libera a CPU permitindo que outra thread possa executar [\[4\]][4].
   - **runtime.GOMAXPROCS** seta o número máximo de CPUs a ser útilizado simultaneamente [\[5\]][5].  
-
-\[1\]: https://golang.org/pkg/sync/#Mutex  
-\[2\]: https://golang.org/ref/spec#Go_statements  
-\[3\]: https://golang.org/ref/spec#Channel_types  
-\[4\]: https://golang.org/pkg/runtime/#Gosched  
-\[5\]: https://golang.org/pkg/runtime/#GOMAXPROCS  
 
 ### Solução
 No programa uma _struct_ é utilizado para representar uma thread no programa.
@@ -42,9 +36,26 @@ Quando a thread 1 recebe o token inicialmente seu lock é liberado. Esta então 
 O problema pede que o escalonador da linguagem seja totalmente preemptivo, entretando em alguns pontos, como laços de repetição, outras _goroutines_ não podem obetar a CPU por preempção [\[6\]][6].
 Logo no programa faz-se uso da função **runtime.GoSched** para permitir que outras rotinas possam ser executadas antes do reinício do laço de repetiação onde o lock da thread é adquirido.
 
-\[6\]: https://github.com/golang/go/issues/11462  
+### Resultados e Desempenho
 
-### Resultados
+Os experimentos foram executados numa máquina com processador Intel Core i7, frequência de 3.40GHz, 4 cores físicos e 4 lógicos, 8GiB de memória RAM.
+O sistema operacional foi um Ubuntu 16.04, com a versão 1.6 do Go Language.
+Para as medições de tempo o comando **time** do GNU/Linux foi utilizado.
+
+A a tabela abaixo apresenta a média de 30 execuções parada cada um dos números de operações.
+
+| Operações | 1000      | 50000     | 500000    | 5000000   | 50000000  |
+|:---------:|:---------:|:---------:|:---------:|:---------:|:---------:|
+| Média     | 0,0029667 | 0,009800  | 0,1131667 | 0,7135667 |  6,53210  |
+
+### Referências
+
+\[1\]: https://golang.org/pkg/sync/#Mutex  
+\[2\]: https://golang.org/ref/spec#Go_statements  
+\[3\]: https://golang.org/ref/spec#Channel_types  
+\[4\]: https://golang.org/pkg/runtime/#Gosched  
+\[5\]: https://golang.org/pkg/runtime/#GOMAXPROCS  
+\[6\]: https://github.com/golang/go/issues/11462  
 
 [1]: https://golang.org/pkg/sync/#Mutex  
 [2]: https://golang.org/ref/spec#Go_statements  

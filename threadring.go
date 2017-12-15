@@ -21,7 +21,6 @@ type Thread struct { // Struct que representa uma thread em execução.
   next *Thread       // Referencia para a próxima thread.
 }
 
-
 /**
  * pass() será executado num ponto onde o mutex da thread estiver desbloqueado.
  * Se o token tiver o valor zero, então o ID da thread é enviado para o 'channel done'.
